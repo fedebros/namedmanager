@@ -158,6 +158,8 @@ class page_output
 			$structure["id"]["column"]	= "id";
 			$this->obj_table->add_link("tbl_lnk_delete", "servers/delete.php", $structure);
 
+			// autorefresh checkbox
+			print '<p><label><input type="checkbox" id="refresh" onchange="javascript:toggle();" checked/>Refresh automatically</label></p><script>function toggle(){if (document.getElementById("refresh").checked) {setTimeout(function(){document.location.reload()}, 5000);}else{clearTimeout();}};toggle();</script>';
 
 			// display the table
 			$this->obj_table->render_table_html();
