@@ -60,7 +60,14 @@ class page_output
 
 	function check_permissions()
 	{
-		return user_permissions_get("namedadmins");
+		if ( user_permissions_get("user") ) {
+                        $sql_obj                = New sql_query;
+                        $sql_obj->string        = "SELECT * FROM `users_domains` WHERE user='{$_SESSION['user']['id']}' AND domain='".$this->obj_domain->id."'";
+                        $sql_obj->execute();
+                        if ($sql_obj->num_rows()) return 1;
+                        else return 0;
+                }
+                else return user_permissions_get("namedadmins");
 	}
 
 
