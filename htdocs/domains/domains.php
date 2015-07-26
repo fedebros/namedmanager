@@ -16,7 +16,7 @@ class page_output
 
 	function check_permissions()
 	{
-		return user_permissions_get("namedadmins");
+		return user_permissions_get("namedadmins") || user_permissions_get("user");
 	}
 
 	function check_requirements()
@@ -48,7 +48,9 @@ class page_output
 
 		// fetch all the domains
 		$this->obj_table->sql_obj->prepare_sql_settable("dns_domains");
+		if ( user_permissions_get("user") ) $this->obj_table->sql_obj->prepare_sql_addjoin("LEFT JOIN users_domains ON dns_domains.id = users_domains.domain");
 		$this->obj_table->sql_obj->prepare_sql_addfield("id", "");
+		if ( user_permissions_get("user") ) $this->obj_table->sql_obj->prepare_sql_addwhere("users_domains.user=".$_SESSION["user"]["id"]);
 		$this->obj_table->sql_obj->prepare_sql_addorderby("REVERSE(domain_name) LIKE 'apra%'");
 		$this->obj_table->sql_obj->prepare_sql_addorderby("domain_description");
 		$this->obj_table->sql_obj->prepare_sql_addorderby("domain_name");
@@ -73,20 +75,23 @@ class page_output
 		else
 		{
 			// details link
-			$structure = NULL;
-			$structure["id"]["column"]	= "id";
-			$this->obj_table->add_link("tbl_lnk_details", "domains/view.php", $structure);
-
+			if ( user_permissions_get("namedadmins") ) {
+				$structure = NULL;
+				$structure["id"]["column"]	= "id";
+				$this->obj_table->add_link("tbl_lnk_details", "domains/view.php", $structure);
+			}
+			
 			// domain records
 			$structure = NULL;
 			$structure["id"]["column"]	= "id";
 			$this->obj_table->add_link("tbl_lnk_records", "domains/records.php", $structure);
 
 			// delete link
-			$structure = NULL;
-			$structure["id"]["column"]	= "id";
-			$this->obj_table->add_link("tbl_lnk_delete", "domains/delete.php", $structure);
-
+			if ( user_permissions_get("namedadmins") ) {
+				$structure = NULL;
+				$structure["id"]["column"]	= "id";
+				$this->obj_table->add_link("tbl_lnk_delete", "domains/delete.php", $structure);
+			}
 
 			// display the table
 			$this->obj_table->render_table_html();
