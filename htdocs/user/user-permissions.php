@@ -88,6 +88,8 @@ class page_output
 		$sql_perms_obj->execute();
 		$sql_perms_obj->fetch_array();
 		
+		$is_user = false;
+		
 		foreach ($sql_perms_obj->data as $data_perms)
 		{
 			// define the checkbox
@@ -105,6 +107,7 @@ class page_output
 			if ($sql_obj->num_rows())
 			{
 				$structure["defaultvalue"] = "on";
+				if ( $data_perms["id"] == 4 ) $is_user = true;
 			}
 
 			// add checkbox
@@ -139,6 +142,30 @@ class page_output
 			Note: We don't load from error data, since there should never
 			be any errors when using this form.
 		*/
+
+                if ($is_user)
+                {
+                        $sql_o          = New sql_query;
+                        $sql_o->string  = "SELECT id,domain_name,user FROM `dns_domains` LEFT JOIN `users_domains` on `dns_domains`.id=`users_domains`.domain WHERE user='". $this->id ."' OR user IS NULL ORDER BY domain_name";
+                        $sql_o->execute();
+                        $sql_o->fetch_array();
+                        foreach ($sql_o->data as $data)
+                        {
+                                // define the checkbox
+                                $structure = NULL;
+                                $structure["fieldname"]                         = "domain-".$data["id"];
+                                $structure["type"]                              = "checkbox";
+                                $structure["options"]["label"]                  = $data["domain_name"];
+                                $structure["options"]["no_translate_fieldname"] = "yes";
+                                if ( !is_null($data['user']) ) $structure["defaultvalue"] = "on";
+
+                                // add checkbox
+                                $this->obj_form->add_input($structure);
+
+                                // add checkbox to subforms
+                                $this->obj_form->subforms["user_domains"][] = "domain-".$data["id"];
+                        }
+                }
 	}
 
 
