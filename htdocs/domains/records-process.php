@@ -14,9 +14,19 @@ require("../include/amberphplib/main.php");
 require("../include/application/main.php");
 
 
+$auth = false;
+if ( user_permissions_get("user") ) {
+        $sql_obj                = New sql_query;
+        $sql_obj->string        = "SELECT * FROM `users_domains` WHERE user=".$_SESSION['user']['id']." AND domain=".@security_form_input_predefined("int", "id_domain", 1, "");
+        $sql_obj->execute();
+        if ($sql_obj->num_rows()) $auth = true;
+}
+elseif ( user_permissions_get("namedadmins") ) $auth = true;
 
-if (user_permissions_get("namedadmins"))
+if ($auth)
 {
+        unset($auth);
+
 	$obj_domain	= New domain;
 
 
