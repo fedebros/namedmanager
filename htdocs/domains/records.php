@@ -40,15 +40,22 @@ class page_output
 		// define the navigiation menu
 		$this->obj_menu_nav = New menu_nav;
 
-		$this->obj_menu_nav->add_item("Domain Details", "page=domains/view.php&id=". $this->obj_domain->id ."");
+		if ( user_permissions_get("namedadmins") ) $this->obj_menu_nav->add_item("Domain Details", "page=domains/view.php&id=". $this->obj_domain->id ."");
 		$this->obj_menu_nav->add_item("Domain Records", "page=domains/records.php&id=". $this->obj_domain->id ."", TRUE);
-		$this->obj_menu_nav->add_item("Delete Domain", "page=domains/delete.php&id=". $this->obj_domain->id ."");
+		if ( user_permissions_get("namedadmins") ) $this->obj_menu_nav->add_item("Delete Domain", "page=domains/delete.php&id=". $this->obj_domain->id ."");
 	}
 
 
 	function check_permissions()
 	{
-		return user_permissions_get("namedadmins");
+		if ( user_permissions_get("user") ) {
+                        $sql_obj                = New sql_query;
+                        $sql_obj->string        = "SELECT * FROM `users_domains` WHERE user='{$_SESSION['user']['id']}' AND domain='".$this->obj_domain->id."'";
+                        $sql_obj->execute();
+                        if ($sql_obj->num_rows()) return 1;
+                        else return 0;
+                }
+                else return user_permissions_get("namedadmins");
 	}
 
 
