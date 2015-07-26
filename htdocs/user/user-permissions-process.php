@@ -119,7 +119,24 @@ if (user_permissions_get(namedadmins))
 			
 		} // end of while
 
+                $sql_domains_obj                = New sql_query;
+                $sql_domains_obj->string        = "SELECT id FROM `dns_domains`";
+                $sql_domains_obj->execute();
+                $sql_domains_obj->fetch_array();
 
+                foreach ($sql_domains_obj->data as $data_sql)
+                {
+                        if ( security_form_input_predefined("any", "domain-".$data_sql["id"], 0, "Form provided invalid input!") == "on" )
+                        {
+                                $sql_obj->string = "INSERT IGNORE INTO `users_domains` (user, domain) VALUES ($id, ".$data_sql['id'].")";
+                                $sql_obj->execute();
+                        }
+                        else
+                        {
+                                $sql_obj->string = "DELETE FROM `users_domains` WHERE user=$id AND domain=".$data_sql['id'];
+                                $sql_obj->execute();
+                        }
+                }
 
 		// commit
 		if (error_check())
