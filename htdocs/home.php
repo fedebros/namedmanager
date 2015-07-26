@@ -18,8 +18,8 @@ else
 	{
 		function check_permissions()
 		{
-			// only allow namedadmins group members to have access
-			if (user_permissions_get("namedadmins"))
+			// only allow namedadmins or user group members to have access
+			if (user_permissions_get("namedadmins")||user_permissions_get("user"))
 			{
 				return 1;
 			}
